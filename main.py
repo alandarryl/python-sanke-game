@@ -59,13 +59,29 @@ def next_turn(snake, food):
     
     snake.squares.insert(0, square)
     
-    del snake.coordinates[-1] 
+    if x == food.coordinates[0] and y == food.coordinates[1]:
+        
+        global score
+        
+        score += 1
+        
+        label.config(text="score: {}".format(score))
+        
+        canvas.delete("food")
+        
+        food = Food()
     
-    canvas.delete(snake.squares[-1])
+    else:
+        del snake.coordinates[-1] 
+        
+        canvas.delete(snake.squares[-1])
+        
+        del snake.squares[-1]
     
-    del snake.squares[-1]
-    
-    window.after(SPEED, next_turn, snake,food)
+    if check_collision(snake):
+        game_over()
+    else:
+        window.after(SPEED, next_turn, snake,food)
 
 def change_direction(new_direction):
     
@@ -84,11 +100,43 @@ def change_direction(new_direction):
         if direction != "up":
             direction =new_direction
 
-def check_collision():
-    pass
+# def show_game_over():
+#     canvas.delete(ALL)
+#     canvas.create_text(
+#         GAME_WIDTH/2,
+#         GAME_HEIGHT/2,
+#         text="Game Over",
+#         fill="red",
+#         font=("consomas", 40)
+#     )
+
+
+def check_collision(snake):
+    x, y = snake.coordinates[0]
+    
+    if x < 0 or x >=GAME_WIDTH:
+        # show_game_over()
+        return True
+    elif y < 0 or y >=GAME_HEIGHT:
+        # show_game_over()
+        return True
+    
+    for body_part in snake.coordinates[1:]:
+        if x == body_part[0] and y == body_part[1]:
+            # show_game_over()
+            return True
 
 def game_over():
-    pass
+    
+    canvas.delete(ALL)
+    canvas.create_text(
+        canvas.winfo_width()/2,
+        canvas.winfo_height()/2,
+        font=('consolas', 70),
+        text="GAME OVER",
+        fill="red",
+        tag="gameover"
+    )
 
 window = Tk()
 window.title("Snake Game")
